@@ -1,21 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class WebViewStack extends StatefulWidget {
+  const WebViewStack({required this.controller, super.key});
+
+  final Completer<WebViewController> controller;
 
   @override
-  State<Home> createState() => _HomeState();
+  State<WebViewStack> createState() => _WebViewStackState();
 }
 
-class _HomeState extends State<Home> {
+class _WebViewStackState extends State<WebViewStack> {
+  late bool loading;
   late WebViewController controllerWebView;
 
-  final String url =
-      'https://flutter.dev/?gclid=Cj0KCQjwtO-kBhDIARIsAL6LorcYgRM71l9KmkJtUVguxurLLVcxaXA-Ac9GsvO7SYyzSTgHP4f3ywoaAuolEALw_wcB&gclsrc=aw.ds';
-  final String url2 = 'https://www.youtube.com/';
-
-  late bool loading;
+  final String url = 'https://physiofrog-staging.firebaseapp.com/landing';
+  // final String url =
+  //     'https://flutter.dev/?gclid=Cj0KCQjwho-lBhC_ARIsAMpgMoeGlBEojumm_RLPZnpBZbw_kbwYjX-QjhUz-4cvphx02O5f-YKtKU4aAnhVEALw_wcB&gclsrc=aw.ds';
+  //final String url = 'https://www.youtube.com/';
 
   late bool hasError;
   late String errorMessage;
@@ -38,10 +42,15 @@ class _HomeState extends State<Home> {
         NavigationDelegate(
           onProgress: (int progress) {
             loadingPercentage = progress;
-            debugPrint(' $progress');
           },
-          onPageStarted: (String url) {},
-          onPageFinished: (String url) {
+          onPageStarted: (
+            String url,
+          ) {
+            widget.controller.complete(controllerWebView);
+          },
+          onPageFinished: (
+            String url,
+          ) {
             if (loadingPercentage == 100) {
               setState(() {
                 loading = false;
@@ -60,6 +69,7 @@ class _HomeState extends State<Home> {
               hasError = true;
               errorMessage = errorMessage;
             });
+            loadingPercentage = 0;
           },
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.startsWith(url)) {
@@ -70,22 +80,19 @@ class _HomeState extends State<Home> {
         ),
       )
       ..loadRequest(Uri.parse(url));
-    debugPrint("loading $loading");
-    debugPrint('error $hasError');
     controllerWebView = controller;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Web View With Flutter'),
-      ),
-      body: hasError
-          ? Center(child: Text(errorMessage))
-          : loading
-              ? const Center(child: CircularProgressIndicator())
-              : WebViewWidget(controller: controllerWebView),
+    return Stack(
+      children: [
+        hasError
+            ? Center(child: Text(errorMessage))
+            : loading
+                ? const Center(child: CircularProgressIndicator())
+                : WebViewWidget(controller: controllerWebView),
+      ],
     );
   }
 }

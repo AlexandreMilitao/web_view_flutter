@@ -1,23 +1,40 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:web_view_flutter/screen/home.dart';
+import 'package:web_view_flutter/src/web_view_stack.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+import 'src/navigation_controls.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final controller = Completer<WebViewController>();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      home: SafeArea(
+        child: Scaffold(
+          bottomNavigationBar: BottomAppBar(
+            color: Colors.blue,
+            child: NavigationControls(
+              webViewController: controller,
+            ),
+          ),
+          body: WebViewStack(
+            controller: controller,
+          ),
+        ),
       ),
-      home: const Home(),
     );
   }
 }
