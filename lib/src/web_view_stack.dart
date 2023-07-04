@@ -34,52 +34,52 @@ class _WebViewStackState extends State<WebViewStack> {
 
     loading = true;
 
-    WebViewController controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xff000000))
-      ..loadRequest(Uri.parse(url))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            loadingPercentage = progress;
-          },
-          onPageStarted: (
-            String url,
-          ) {
-            widget.controller.complete(controllerWebView);
-          },
-          onPageFinished: (
-            String url,
-          ) {
-            if (loadingPercentage == 100) {
-              setState(() {
-                loading = false;
-              });
-            }
-          },
-          onWebResourceError: (WebResourceError error) {
-            errorMessage = ('''
+    WebViewController controller = WebViewController();
+    controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+    controller.setBackgroundColor(const Color(0xff000000));
+    controller.loadRequest(Uri.parse(url));
+    controller.setNavigationDelegate(
+      NavigationDelegate(
+        onProgress: (int progress) {
+          loadingPercentage = progress;
+        },
+        onPageStarted: (
+          String url,
+        ) {
+          widget.controller.complete(controllerWebView);
+        },
+        onPageFinished: (
+          String url,
+        ) {
+          if (loadingPercentage == 100) {
+            setState(() {
+              loading = false;
+            });
+          }
+        },
+        onWebResourceError: (WebResourceError error) {
+          errorMessage = ('''
             Código do Erro: ${error.errorCode}
             Descrição: ${error.description}
             Tipo de Erro: ${error.errorType}
             isForMainFrame: ${error.isForMainFrame}
             ''');
-            debugPrint(errorMessage);
-            setState(() {
-              hasError = true;
-              errorMessage = errorMessage;
-            });
-            loadingPercentage = 0;
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith(url)) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(url));
+          debugPrint(errorMessage);
+          setState(() {
+            hasError = true;
+            errorMessage = errorMessage;
+          });
+          loadingPercentage = 0;
+        },
+        onNavigationRequest: (NavigationRequest request) {
+          if (request.url.startsWith(url)) {
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
+      ),
+    );
+    controller.loadRequest(Uri.parse(url));
     controllerWebView = controller;
   }
 
